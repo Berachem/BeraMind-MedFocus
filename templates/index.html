@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="px-4 py-16 sm:px-6 lg:px-8">
+    <!-- Hero Section -->
+    <div class="text-center">
+        <h1 class="text-4xl font-bold text-gray-900 sm:text-6xl">
+            <span class="text-medical-primary">MedExplain</span>
+        </h1>
+        <p class="mt-6 text-xl text-gray-600 max-w-3xl mx-auto">
+            Intelligence artificielle médicale avec MedGemma 4B IT via vLLM
+        </p>
+        <div class="mt-10 flex items-center justify-center gap-x-6">
+            <a href="{{ url_for('chat') }}" 
+               class="rounded-md bg-medical-primary px-6 py-3 text-lg font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-medical-primary">
+                💬 Poser une Question
+            </a>
+            <a href="{{ url_for('image_analysis') }}" 
+               class="rounded-md bg-medical-accent px-6 py-3 text-lg font-semibold text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-medical-accent">
+                📷 Analyser une Image
+            </a>
+        </div>
+    </div>
+
+    <!-- Features -->
+    <div class="mt-20">
+        <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="text-3xl mb-4">🤖</div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">IA Médicale Avancée</h3>
+                <p class="text-gray-600">Utilise MedGemma 4B IT via vLLM pour des réponses médicales précises et contextuelles.</p>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="text-3xl mb-4">💬</div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Questions Médicales</h3>
+                <p class="text-gray-600">Posez des questions sur les symptômes, traitements et conseils de santé généraux.</p>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="text-3xl mb-4">📷</div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Analyse d'Images</h3>
+                <p class="text-gray-600">Analysez des radiographies, IRM et autres images médicales avec l'IA.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warning Alert -->
+    <div class="mt-16 mx-auto max-w-4xl">
+        <div class="rounded-md bg-red-50 p-4 border border-red-200">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Avertissement Important</h3>
+                    <div class="mt-2 text-sm text-red-700">
+                        <p>Cette application est destinée à des fins éducatives uniquement. Elle ne remplace en aucun cas l'avis d'un professionnel de santé qualifié. En cas d'urgence médicale, contactez immédiatement les services d'urgence au <strong>15</strong> ou <strong>112</strong>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}Analyse d'Images - MedExplain{% endblock %}
+
+{% block content %}
+<div class="px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">📷 Analyse d'Images Médicales</h1>
+            <p class="mt-2 text-gray-600">Analysez vos images médicales avec l'IA</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Upload Area -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Upload d'Image</h2>
+                
+                <!-- Drag & Drop Zone -->
+                <div id="dropzone" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-medical-primary transition-colors">
+                    <div id="drop-content">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <div class="mt-4">
+                            <label for="imageInput" class="cursor-pointer">
+                                <span class="mt-2 block text-sm font-medium text-gray-900">
+                                    Glissez une image ici ou 
+                                    <span class="text-medical-primary">cliquez pour parcourir</span>
+                                </span>
+                            </label>
+                            <input id="imageInput" type="file" class="hidden" accept="image/*">
+                        </div>
+                        <p class="mt-2 text-xs text-gray-500">PNG, JPG, JPEG jusqu'à 16MB</p>
+                    </div>
+                    
+                    <!-- Preview -->
+                    <div id="preview" class="hidden">
+                        <img id="previewImage" class="max-h-64 mx-auto rounded-lg shadow-md">
+                        <button id="removeImage" class="mt-2 text-sm text-red-600 hover:text-red-800">Supprimer</button>
+                    </div>
+                </div>
+
+                <!-- Question Input -->
+                <div class="mt-6">
+                    <label for="questionInput" class="block text-sm font-medium text-gray-700 mb-2">
+                        Question sur l'image (optionnel)
+                    </label>
+                    <textarea id="questionInput" 
+                              rows="3" 
+                              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-medical-primary focus:border-transparent"
+                              placeholder="Ex: Y a-t-il une anomalie visible ? Que voyez-vous sur cette radiographie ?"></textarea>
+                </div>
+
+                <!-- Analyze Button -->
+                <button id="analyzeButton" 
+                        disabled
+                        class="mt-4 w-full bg-gray-400 text-white py-2 px-4 rounded-lg cursor-not-allowed">
+                    📊 Analyser l'Image
+                </button>
+            </div>
+
+            <!-- Results Area -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Résultats de l'Analyse</h2>
+                
+                <div id="results" class="hidden">
+                    <div id="analysisResult" class="bg-gray-50 rounded-lg p-4 mb-4">
+                        <!-- Results will be inserted here -->
+                    </div>
+                </div>
+                
+                <div id="noResults" class="text-center text-gray-500 py-8">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <p class="mt-2">Uploadez une image pour voir l'analyse</p>
+                </div>
+
+                <!-- Loading -->
+                <div id="loading" class="hidden text-center py-8">
+                    <div class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-medical-primary bg-white">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-medical-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Analyse en cours...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency Alert -->
+        <div id="emergencyAlert" class="hidden mt-8 rounded-md bg-red-50 p-4 border border-red-200">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">🚨 Urgence Médicale Détectée</h3>
+                    <div class="mt-2 text-sm text-red-700">
+                        <p>L'analyse suggère une urgence médicale. Contactez immédiatement les services d'urgence au <strong>15</strong> ou <strong>112</strong>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const dropzone = document.getElementById('dropzone');
+const imageInput = document.getElementById('imageInput');
+const preview = document.getElementById('preview');
+const previewImage = document.getElementById('previewImage');
+const dropContent = document.getElementById('drop-content');
+const removeImage = document.getElementById('removeImage');
+const analyzeButton = document.getElementById('analyzeButton');
+const questionInput = document.getElementById('questionInput');
+const results = document.getElementById('results');
+const noResults = document.getElementById('noResults');
+const analysisResult = document.getElementById('analysisResult');
+const loading = document.getElementById('loading');
+const emergencyAlert = document.getElementById('emergencyAlert');
+
+let selectedFile = null;
+
+// Drag & Drop handlers
+dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.classList.add('border-medical-primary');
+});
+
+dropzone.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('border-medical-primary');
+});
+
+dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('border-medical-primary');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        handleFileSelect(files[0]);
+    }
+});
+
+// File input handler
+imageInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        handleFileSelect(e.target.files[0]);
+    }
+});
+
+// Remove image handler
+removeImage.addEventListener('click', () => {
+    selectedFile = null;
+    preview.classList.add('hidden');
+    dropContent.classList.remove('hidden');
+    analyzeButton.disabled = true;
+    analyzeButton.className = "mt-4 w-full bg-gray-400 text-white py-2 px-4 rounded-lg cursor-not-allowed";
+    imageInput.value = '';
+});
+
+function handleFileSelect(file) {
+    if (file && file.type.startsWith('image/')) {
+        selectedFile = file;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImage.src = e.target.result;
+            dropContent.classList.add('hidden');
+            preview.classList.remove('hidden');
+            
+            analyzeButton.disabled = false;
+            analyzeButton.className = "mt-4 w-full bg-medical-primary text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-medical-primary focus:ring-offset-2";
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Analyze button handler
+analyzeButton.addEventListener('click', async () => {
+    if (!selectedFile) return;
+    
+    const formData = new FormData();
+    formData.append('image', selectedFile);
+    formData.append('question', questionInput.value || 'Analysez cette image médicale.');
+    
+    // Show loading
+    noResults.classList.add('hidden');
+    results.classList.add('hidden');
+    loading.classList.remove('hidden');
+    analyzeButton.disabled = true;
+    
+    try {
+        const response = await fetch('/analyze_image', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        loading.classList.add('hidden');
+        
+        if (data.error) {
+            analysisResult.innerHTML = `
+                <div class="text-red-600">
+                    <h3 class="font-semibold">Erreur d'analyse</h3>
+                    <p class="mt-1">${data.error}</p>
+                </div>
+            `;
+        } else {
+            analysisResult.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-2">📋 Analyse de l'IA</h3>
+                        <div class="bg-white p-3 rounded border border-gray-200">
+                            <p class="text-gray-800">${data.answer}</p>
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        Analysé le ${new Date(data.timestamp).toLocaleString('fr-FR')}
+                    </div>
+                </div>
+            `;
+            
+            // Show emergency alert if needed
+            if (data.is_emergency) {
+                emergencyAlert.classList.remove('hidden');
+                setTimeout(() => {
+                    emergencyAlert.classList.add('hidden');
+                }, 15000);
+            }
+        }
+        
+        results.classList.remove('hidden');
+        
+    } catch (error) {
+        loading.classList.add('hidden');
+        analysisResult.innerHTML = `
+            <div class="text-red-600">
+                <h3 class="font-semibold">Erreur de connexion</h3>
+                <p class="mt-1">${error.message}</p>
+            </div>
+        `;
+        results.classList.remove('hidden');
+    }
+    
+    analyzeButton.disabled = false;
+});
+</script>
+{% endblock %}
